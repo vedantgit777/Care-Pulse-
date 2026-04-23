@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeuroClinic AI | Diagnostic Report</title>
+  <title>Care Pulse | Diagnostic Report</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -468,7 +468,7 @@
       </svg>
     </div>
     <div>
-      <div class="brand-name">NeuroClinic AI</div>
+      <div class="brand-name">Care Pulse</div>
       <div class="brand-sub">Alzheimer's Precision System</div>
     </div>
   </a>
@@ -634,6 +634,29 @@
           <span class="mri-tag">3.0T · 1mm iso</span>
         </div>
       </div>
+
+      
+      
+      {% if result.gradcam %}
+      <div style="margin-bottom: 1rem;">
+        <div class="card-head" style="margin-bottom: 0.6rem;">
+          <div class="card-head-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2f6de0" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <div>
+            <div class="card-title" style="font-size:13px;">Grad-CAM Attention Map</div>
+            <div class="card-sub">Red/yellow = regions model focused on</div>
+          </div>
+        </div>
+        <div class="mri-frame">
+          <img src="data:image/png;base64,{{ result.gradcam }}" alt="Grad-CAM Heatmap">
+          <div class="mri-overlay">
+            <span class="mri-tag">GRAD-CAM</span>
+            <span class="mri-tag">EfficientNetV2B3</span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
       <div class="preprocess-note">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
