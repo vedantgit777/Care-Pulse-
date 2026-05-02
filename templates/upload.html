@@ -462,9 +462,10 @@
     <div style="width:0.5px;height:20px;background:var(--border)"></div>
     {% if user_name %}
     <div class="doctor-badge">
-      <div class="doctor-avatar">VB</div>
-      <div>
-        <div class="doctor-name">{{ user_name }}</div>
+     <span style="color:#40a518; font-weight:900;">
+  {{ user_name[0] }}{% if user_name.split()|length > 1 %}{{ user_name.split()[1][0] }}{% endif %}
+</span>
+        <div class="doctor-name">{{ user_name }}</div> 
         <div style="font-size:10px;color:var(--text3)">Signed in</div>
       </div>
     </div>
