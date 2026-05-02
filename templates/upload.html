@@ -446,7 +446,7 @@
     </div>
     <div>
       <div class="topbar-title">Care Pulse</div>
-      <div style="font-size:11px;color:var(--text2)">Alzheimer's Precision System</div>
+      <div style="font-size:11px;color:var(--text2)">Alzheimer's Detection & Prevention System</div>
     </div>
   </div>
   <div class="topbar-right">
@@ -505,7 +505,15 @@
   <div class="page-head">
     <div class="page-head-left">
       <h1>Clinical Dashboard</h1>
-      <p>Saturday, 12 April 2026 · Pune Dementia Research Unit</p>
+      <div class="brand-name"></div>
+<div class="brand-sub" id="currentDate">Loading...</div>
+
+<script>
+  const now = new Date();
+  const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  const dateStr = now.toLocaleDateString('en-GB', options);
+  document.getElementById('currentDate').textContent = dateStr + ' · Pune Dementia Research Unit';
+</script>
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost">
@@ -564,8 +572,8 @@
       <div class="metric-label">Model Accuracy</div>
       <div class="metric-value" style="color:#7c3aed">95%</div>
       <div class="metric-delta">
-        <span class="delta-tag" style="background:#ede9fe;color:#7c3aed">AUC score</span>
-        <span class="metric-sub">validation set</span>
+        <span class="delta-tag" style="background:#ede9fe;color:#7c3aed"></span>
+        <span class="metric-sub">validation accuracy </span>
       </div>
       <div class="metric-accent" style="background:#7c3aed"></div>
     </div>
@@ -668,29 +676,29 @@
         <div class="card-head">
           <div>
             <div class="card-title">Model Performance</div>
-            <div class="card-sub">Ensemble CNN-ViT · n=4,200 scans</div>
+            <div class="card-sub">EfficientNetV2B3 Model</div>
           </div>
         </div>
         <div class="perf-list">
           <div class="perf-row">
             <div class="perf-label">Sensitivity</div>
             <div class="perf-track"><div class="perf-fill" id="p1" style="width:0%;background:#1a6ef5"></div></div>
-            <div class="perf-pct">98.1%</div>
+            <div class="perf-pct">95.8%</div>
           </div>
           <div class="perf-row">
             <div class="perf-label">Specificity</div>
             <div class="perf-track"><div class="perf-fill" id="p2" style="width:0%;background:#16a34a"></div></div>
-            <div class="perf-pct">97.9%</div>
+            <div class="perf-pct">97.6%</div>
           </div>
           <div class="perf-row">
             <div class="perf-label">AUC score</div>
             <div class="perf-track"><div class="perf-fill" id="p3" style="width:0%;background:#7c3aed"></div></div>
-            <div class="perf-pct">98.4%</div>
+            <div class="perf-pct">99.3%</div>
           </div>
           <div class="perf-row">
             <div class="perf-label">F1 score</div>
             <div class="perf-track"><div class="perf-fill" id="p4" style="width:0%;background:#d97706"></div></div>
-            <div class="perf-pct">97.6%</div>
+            <div class="perf-pct">95.8%</div>
           </div>
         </div>
         <div class="callout callout-green" style="margin-top:10px">
