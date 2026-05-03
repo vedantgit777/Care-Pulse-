@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Care Pulse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b24;
+      --surface2:  #1c2333;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --primary:   #3b82f6;
+      --primary-h: #2563eb;
+      --text:      #e8edf3;
+      --muted:     #7d90a8;
+      --danger:    #ef4444;
+      --danger-h:  #dc2626;
+      --success:   #22c55e;
+      --badge-bg:  rgba(59,130,246,0.12);
+      --badge-bd:  rgba(59,130,246,0.25);
+      --badge-tx:  #93c5fd;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Top navbar ── */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 14px; }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 17px; font-weight: 700; letter-spacing: -0.3px;
+    }
+    .nav-logo-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.1));
+      border: 1px solid var(--badge-bd);
+      display: grid; place-items: center;
+    }
+    .admin-badge {
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-bd);
+      color: var(--badge-tx);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .nav-user { font-size: 13px; color: var(--muted); }
+    .btn-logout {
+      padding: 7px 16px;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-logout:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ── Main layout ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    /* ── Page title ── */
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      margin-bottom: 4px;
+    }
+    .page-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+    /* ── Stats grid ── */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .stat-value { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+    .stat-value.blue  { color: var(--primary); }
+    .stat-value.green { color: var(--success); }
+
+    /* ── Section ── */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .section-header {
+      padding: 18px 22px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .section-title { font-size: 16px; font-weight: 600; }
+    .section-sub   { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Add user form ── */
+    .add-form {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .add-form input {
+      padding: 9px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface2);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      min-width: 180px;
+    }
+    .add-form input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .add-form input::placeholder { color: #4a5a6e; }
+
+    .btn-add {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+      display: flex; align-items: center; gap: 6px;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .btn-add:hover  { background: var(--primary-h); }
+    .btn-add:active { transform: scale(0.97); }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      z-index: 999;
+      transform: translateY(80px); opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      display: flex; align-items: center; gap: 9px;
+      max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-color: rgba(34,197,94,0.4); color: #86efac; }
+    #toast.error   { border-color: rgba(239,68,68,0.4);  color: #fca5a5; }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th {
+      padding: 13px 20px;
+      text-align: left;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.025); }
+    td { padding: 14px 20px; font-size: 14px; vertical-align: middle; }
+
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #1e3a5f, #2563eb);
+      display: grid; place-items: center;
+      font-size: 13px; font-weight: 700; color: #93c5fd;
+      flex-shrink: 0;
+    }
+    .user-name  { font-weight: 500; font-size: 14px; }
+    .user-email { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    .badge-active {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.25);
+      color: #86efac;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge-active::before {
+      content: ''; width: 6px; height: 6px;
+      border-radius: 50%; background: #22c55e;
+    }
+
+    td.muted-text { color: var(--muted); font-size: 13px; }
+
+    .btn-delete {
+      padding: 6px 14px;
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: rgba(239,68,68,0.08);
+      color: #fca5a5;
+      display: flex; align-items: center; gap: 5px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-delete:hover {
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.4);
+    }
+
+    .empty-state {
+      padding: 48px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+
+    /* ── Loading ── */
+    .loading-row td { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+
+    @media (max-width: 600px) {
+      .navbar { padding: 0 16px; }
+      .main   { padding: 20px 16px; }
+      .add-form { flex-direction: column; }
+      .add-form input { min-width: unset; width: 100%; }
+      .btn-add { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <div class="nav-logo-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="1.8">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        Care Pulse
+      </div>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user">{{ admin_name }}</span>
+      <a href="{{ url_for('logout') }}" class="btn-logout">Sign out</a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="page-sub">Manage authorized users and system access.</p>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value blue" id="stat-total">{{ total_users }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Logins</div>
+        <div class="stat-value green" id="stat-logins">{{ total_logins }}</div>
+      </div>
+    </div>
+
+    <!-- Add User -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Add New User</div>
+          <div class="section-sub">Grant access by adding an authorized email.</div>
+        </div>
+      </div>
+      <div style="padding: 18px 22px;">
+        <div class="add-form">
+          <input type="text"  id="new-name"  placeholder="Full name" />
+          <input type="email" id="new-email" placeholder="user@example.com" />
+          <button class="btn-add" onclick="addUser()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add User
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Authorized Users</div>
+          <div class="section-sub">All users with login access.</div>
+        </div>
+        <button class="btn-add" onclick="refreshUsers()" style="background:transparent; border:1px solid var(--border2); color:var(--muted);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Status</th>
+              <th>Logins</th>
+              <th>Last Login</th>
+              <th>Added</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            {% if users %}
+              {% for user in users %}
+              <tr id="row-{{ loop.index }}">
+                <td>
+                  <div class="user-cell">
+                    <div class="avatar">{{ user.name[0].upper() if user.name else '?' }}</div>
+                    <div>
+                      <div class="user-name">{{ user.name }}</div>
+                      <div class="user-email">{{ user.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge-active">Active</span></td>
+                <td class="muted-text">{{ user.login_count or 0 }}</td>
+                <td class="muted-text">
+                  {% if user.last_login %}
+                    {{ user.last_login.strftime('%b %d, %Y') if user.last_login is not string else user.last_login }}
+                  {% else %}
+                    Never
+                  {% endif %}
+                </td>
+                <td class="muted-text">
+                  {% if user.created_at %}
+                    {{ user.created_at.strftime('%b %d, %Y') if user.created_at is not string else user.created_at }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td>
+                  <button class="btn-delete" onclick="deleteUser('{{ user.email }}', this)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                    </svg>
+                    Remove
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="6">
+                <div class="empty-state">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  <p>No users yet. Add one above.</p>
+                </div>
+              </td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script>
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `show ${type}`;
+      setTimeout(() => { t.className = ''; }, 3500);
+    }
+
+    async function addUser() {
+      const name  = document.getElementById('new-name').value.trim();
+      const email = document.getElementById('new-email').value.trim().toLowerCase();
+      if (!name || !email) { showToast('Name and email are required.', 'error'); return; }
+
+      const res  = await fetch('/admin/add_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showToast(`${name} added successfully.`, 'success');
+        document.getElementById('new-name').value  = '';
+        document.getElementById('new-email').value = '';
+        refreshUsers();
+      } else {
+        showToast(data.error || 'Failed to add user.', 'error');
+      }
+    }
+
+    async function deleteUser(email, btn) {
+      if (!confirm(`Remove ${email} from authorized users?`)) return;
+      btn.disabled = true;
+      const res  = await fetch('/admin/delete_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`${email} removed.`, 'success');
+        refreshUsers();
+      } else {
+        showToast(data.error || 'Failed to delete user.', 'error');
+        btn.disabled = false;
+      }
+    }
+
+    async function refreshUsers() {
+      const tbody = document.getElementById('users-tbody');
+      tbody.innerHTML = '<tr class="loading-row"><td colspan="6">Loading...</td></tr>';
+
+      const res   = await fetch('/admin/users');
+      const users = await res.json();
+
+      if (!users.length) {
+        tbody.innerHTML = `<tr><td colspan="6">
+          <div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <p>No users yet. Add one above.</p>
+          </div></td></tr>`;
+        document.getElementById('stat-total').textContent = 0;
+        return;
+      }
+
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="avatar">${(u.name || '?')[0].toUpperCase()}</div>
+              <div>
+                <div class="user-name">${u.name || '—'}</div>
+                <div class="user-email">${u.email}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-active">Active</span></td>
+          <td class="muted-text">${u.login_count || 0}</td>
+          <td class="muted-text">${u.last_login || 'Never'}</td>
+          <td class="muted-text">${u.created_at || '—'}</td>
+          <td>
+            <button class="btn-delete" onclick="deleteUser('${u.email}', this)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+              </svg>
+              Remove
+            </button>
+          </td>
+        </tr>`).join('');
+
+      // Update stats
+      const totalLogins = users.reduce((s, u) => s + (u.login_count || 0), 0);
+      document.getElementById('stat-total').textContent  = users.length;
+      document.getElementById('stat-logins').textContent = totalLogins;
+    }
+
+    // Allow Enter key on add form
+    ['new-name', 'new-email'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') addUser();
+      });
+    });
+  </script>
+</body>
+</html>

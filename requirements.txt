@@ -5,4 +5,5 @@ numpy
 google-genai
 python-dotenv
 groq
-pip install opencv-python
+opencv-python
+pymongo
