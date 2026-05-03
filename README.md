@@ -1,6 +1,6 @@
 # Alzheimer's Classification Flask App
 
-This Flask app classifies Alzheimer's disease stages from brain scan images using a fine-tuned Inception model.
+This Flask app classifies Alzheimer's disease stages from brain scan images using a EfficientNetV2B3 
 
 ## Classes
 - Non Demented
@@ -10,22 +10,9 @@ This Flask app classifies Alzheimer's disease stages from brain scan images usin
 
 ## Installation
 
-1. Create and activate a virtual environment (Windows PowerShell):
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
-
-2. Install the required packages:
-   ```powershell
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
-
-3. Run the app:
-   ```powershell
-   python app.py
-   ```
+cd C:\Users\Vedant\OneDrive\Desktop\CAREPULSE\Care-Pulse-
+.\.venv\Scripts\Activate.ps1
+python app.py
 
 ## Usage
 
