@@ -8,17 +8,24 @@ import requests
 import os
 from dotenv import load_dotenv
 from functools import lru_cache
-
+from pymongo import MongoClient
+from datetime import datetime
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # suppresses INFO and WARNING logs
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 
-HARDCODED_USERS = {
-    "vedantbhagwani@gmail.com": "Vedant Bhagwani",
-    "swapnilsingh@gmail.com": "Swapnil Singh",
-    "shreysrivastava@gmail.com": "Shrey Srivastava"
-}
+# ── MongoDB
+MONGO_URI = os.getenv('MONGO_URI')
+mongo_client = MongoClient(MONGO_URI)
+db = mongo_client['carepulse']
+users_collection = db['users']
+
+# ── Admin credentials from env
+ADMIN_EMAIL = os.getenv('EMAIL_USER')
+ADMIN_PASS  = os.getenv('EMAIL_PASS')
 
 # ── Model
 def load_model():
@@ -286,25 +293,47 @@ def preprocess_image(image):
 
 
 # ────────────────────────────────────────────────
-# ROUTES
+# ROUTES — AUTH
 # ────────────────────────────────────────────────
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
-
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
-
-        # ✅ Correct check for multiple users
-        if email in HARDCODED_USERS:
+        # Look up user in MongoDB
+        user = users_collection.find_one({'email': email})
+        if user:
             session['user_email'] = email
-            session['user_name'] = HARDCODED_USERS[email]
+            session['user_name']  = user.get('name', email)
+            session['role']       = 'user'
+            # Record login timestamp
+            users_collection.update_one(
+                {'email': email},
+                {'$set': {'last_login': datetime.utcnow()},
+                 '$inc': {'login_count': 1}}
+            )
             return redirect(url_for('upload_file'))
         else:
             error = 'Invalid email. Please use an authorized login email.'
-
     return render_template('login.html', error=error)
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    error = None
+    if request.method == 'POST':
+        email    = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
+
+        if email == ADMIN_EMAIL.lower() and password == ADMIN_PASS:
+            session['user_email'] = email
+            session['user_name']  = 'Admin'
+            session['role']       = 'admin'
+            return redirect(url_for('admin_dashboard'))
+        else:
+            error = 'Invalid admin credentials.'
+    return render_template('admin_login.html', error=error)
 
 
 @app.route('/logout')
@@ -312,6 +341,83 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+
+# ────────────────────────────────────────────────
+# ROUTES — ADMIN
+# ────────────────────────────────────────────────
+
+def admin_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if session.get('role') != 'admin':
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    users = list(users_collection.find({}, {'_id': 0}))
+    total_users  = len(users)
+    total_logins = sum(u.get('login_count', 0) for u in users)
+    return render_template('admin.html',
+                           users=users,
+                           total_users=total_users,
+                           total_logins=total_logins,
+                           admin_name=session.get('user_name'))
+
+
+@app.route('/admin/add_user', methods=['POST'])
+@admin_required
+def admin_add_user():
+    data  = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    name  = data.get('name', '').strip()
+    if not email or not name:
+        return jsonify({'error': 'Email and name are required.'}), 400
+    if users_collection.find_one({'email': email}):
+        return jsonify({'error': 'User already exists.'}), 409
+    users_collection.insert_one({
+        'email':       email,
+        'name':        name,
+        'created_at':  datetime.utcnow(),
+        'login_count': 0,
+        'last_login':  None
+    })
+    return jsonify({'success': True, 'message': f'User {name} added.'})
+
+
+@app.route('/admin/delete_user', methods=['POST'])
+@admin_required
+def admin_delete_user():
+    data  = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    if not email:
+        return jsonify({'error': 'Email is required.'}), 400
+    result = users_collection.delete_one({'email': email})
+    if result.deleted_count:
+        return jsonify({'success': True, 'message': f'User {email} deleted.'})
+    return jsonify({'error': 'User not found.'}), 404
+
+
+@app.route('/admin/users')
+@admin_required
+def admin_get_users():
+    users = list(users_collection.find({}, {'_id': 0}))
+    # Convert datetime objects to strings
+    for u in users:
+        if u.get('created_at'):
+            u['created_at'] = u['created_at'].strftime('%Y-%m-%d %H:%M')
+        if u.get('last_login'):
+            u['last_login'] = u['last_login'].strftime('%Y-%m-%d %H:%M')
+    return jsonify(users)
+
+
+# ────────────────────────────────────────────────
+# ROUTES — MAIN APP
+# ────────────────────────────────────────────────
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -335,14 +441,13 @@ def upload_file():
             image.verify()
             image = Image.open(BytesIO(file_bytes))
 
-            processed    = preprocess_image(image)
-            predictions  = model.predict(processed)
+            processed     = preprocess_image(image)
+            predictions   = model.predict(processed)
             predicted_idx = int(np.argmax(predictions, axis=1)[0])
-            confidence   = float(predictions[0][predicted_idx] * 100)
+            confidence    = float(predictions[0][predicted_idx] * 100)
             confidence_pct = round(confidence, 2)
             predicted_label = class_labels[predicted_idx]
 
-            # MRI image as base64
             buffer = BytesIO()
             image.save(buffer, format='PNG')
             img_str = base64.b64encode(buffer.getvalue()).decode()
@@ -394,8 +499,8 @@ def ask_groq():
 @app.route('/health')
 def health_check():
     return jsonify({
-        'status': 'healthy',
-        'model_loaded': True,
+        'status':        'healthy',
+        'model_loaded':  True,
         'llm_available': USE_GROQ,
     })
 

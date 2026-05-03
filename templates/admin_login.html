@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | Care Pulse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --card:     #161b24;
+      --border:   rgba(255,255,255,0.08);
+      --primary:  #3b82f6;
+      --primary-h:#2563eb;
+      --text:     #e8edf3;
+      --muted:    #7d90a8;
+      --input-bg: #1e2532;
+      --error-bg: rgba(239,68,68,0.1);
+      --error-bd: rgba(239,68,68,0.3);
+      --error-tx: #fca5a5;
+      --badge-bg: rgba(59,130,246,0.12);
+      --badge-bd: rgba(59,130,246,0.25);
+      --badge-tx: #93c5fd;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background-image:
+        radial-gradient(ellipse at 30% 10%, rgba(59,130,246,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 85%, rgba(59,130,246,0.05) 0%, transparent 50%);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+      padding: 36px 32px 28px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Brand ── */
+    .brand { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
+    .brand-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.1));
+      border: 1px solid var(--badge-bd);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .brand-name { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .brand-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Admin badge ── */
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-bd);
+      color: var(--badge-tx);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .heading { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 6px; }
+    .subhead  { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.55; }
+
+    /* ── Error ── */
+    .error {
+      background: var(--error-bg);
+      border: 1px solid var(--error-bd);
+      color: var(--error-tx);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13.5px;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── Form ── */
+    .field { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 7px;
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 13px 15px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--input-bg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    input::placeholder { color: #4a5a6e; }
+
+    /* ── Button ── */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+      margin-top: 6px;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary:hover  { background: var(--primary-h); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    /* ── Back link ── */
+    .back-link {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    .security-note {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#3b82f6" stroke-width="1.6">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Care Pulse</div>
+        <div class="brand-sub">Alzheimer's Detection &amp; Prevention System</div>
+      </div>
+    </div>
+
+    <div class="admin-badge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="12" cy="12" r="10"/>
+      </svg>
+      Admin Portal
+    </div>
+
+    <h1 class="heading">Admin Access</h1>
+    <p class="subhead">Restricted to system administrators only.</p>
+
+    <!-- Error -->
+    {% if error %}
+    <div class="error">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Form -->
+    <form action="{{ url_for('admin_login') }}" method="post">
+      <div class="field">
+        <label for="email">Admin Email</label>
+        <input type="email" id="email" name="email" placeholder="admin@example.com" required autofocus />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="••••••••••••" required />
+      </div>
+      <button type="submit" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Access Admin Dashboard
+      </button>
+    </form>
+
+    <div class="security-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      All admin actions are logged and audited.
+    </div>
+
+    <a href="{{ url_for('login') }}" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to user login
+    </a>
+  </div>
+</body>
+</html>
